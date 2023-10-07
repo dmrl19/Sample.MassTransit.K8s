@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker-consumer-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: worker-consumer
+  template:
+    metadata:
+      labels:
+        app: user-worker-consumer
+        service: worker-consumer
+    spec:
+      containers:
+        - name: worker-consumer # Name of the container
+          image: dmm91/sample-worker-consumer-mass-transit-k8s:latest
+          # imagePullPolicy: IfNotPresent
+          imagePullPolicy: Never # If it is set to Never, it will use the image from your local machine instead of going to the hub.
+          ports:
+            - containerPort: 80
+              protocol: TCP
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Development
+            - name: RabbitMqConfig__Uri
+              value: rabbitmqcluster-sample
+            - name: RabbitMqConfig__Username
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmqcluster-sample-default-user
+                  key: username
+            - name: RabbitMqConfig__Password
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmqcluster-sample-default-user
+                  key: password
+              
+    
+---
+
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: webapi-users-ld
+# spec:
+#   type: LoadBalancer
+#   ports:
+#     - port: 2000
+#       targetPort: 80
+#       protocol: TCP
+#   selector:
+#     service: webapi

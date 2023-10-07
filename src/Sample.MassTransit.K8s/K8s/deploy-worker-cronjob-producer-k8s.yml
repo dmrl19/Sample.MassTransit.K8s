@@ -1,0 +1,30 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: hello
+spec:
+  schedule: "*/1 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: hello
+            image: dmm91/sample-worker-cronjob-producer-mass-transit-k8s:latest
+            imagePullPolicy: Never # If it is set to Never, it will use the image from your local machine instead of going to the hub.
+            env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Development
+            - name: RabbitMqConfig__Uri
+              value: rabbitmqcluster-sample
+            - name: RabbitMqConfig__Username
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmqcluster-sample-default-user
+                  key: username
+            - name: RabbitMqConfig__Password
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmqcluster-sample-default-user
+                  key: password
+          restartPolicy: OnFailure

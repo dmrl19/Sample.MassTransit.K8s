@@ -1,0 +1,17 @@
+apiVersion: rabbitmq.com/v1beta1
+kind: RabbitmqCluster
+metadata:
+  name: rabbitmqcluster-sample
+spec:
+  service:
+    type: LoadBalancer
+
+# Install the RabbitMQ operator 
+# kubectl apply -f https://github.com/rabbitmq/cluster-operator/releases/latest/download/cluster-operator.yml
+
+# Running the RabbitMq, will also create a couple of secrets, one of them is the username & password to access to the dashboard
+
+# Get RabbitMq Username
+  # kubectl get secret rabbitmqcluster-sample-default-user -o jsonpath='{.data.username}' | base64 --decode
+# Get RabbitMq Password
+  # kubectl get secret rabbitmqcluster-sample-default-user -o jsonpath='{.data.password}' | base64 --decode

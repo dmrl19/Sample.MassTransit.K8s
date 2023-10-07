@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webapi-users-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: webapi
+  template:
+    metadata:
+      labels:
+        app: user-api
+        service: webapi
+    spec:
+      containers:
+        - name: webapi # Name of the container
+          image: dmm91/sample-api-mass-transit-k8s:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+              protocol: TCP
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Development
+            - name: RabbitMqConfig__Uri
+              value: rabbitmqcluster-sample
+            - name: RabbitMqConfig__Username
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmqcluster-sample-default-user
+                  key: username
+            - name: RabbitMqConfig__Password
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmqcluster-sample-default-user
+                  key: password
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: webapi-users-ld
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 2000
+      targetPort: 80
+      protocol: TCP
+  selector:
+    service: webapi
